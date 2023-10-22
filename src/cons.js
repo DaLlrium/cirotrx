@@ -15,7 +15,7 @@ const testnet = true;//shasta
 
 if(testnet){
 
-    SC = "TRLMcqSkkEeJi4HtPJWkWSMBvxMZcxuRny";//ciro TRX
+    SC = "TTYSc4awMrxUyGkMPpCPsX2jbFNs4pqj3g";//ciro TRX
 
     USDT = "TExwHCjZYbb7ToQUfQY5JgumwbcXAgeaVd";//token USDT
 

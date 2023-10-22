@@ -35,7 +35,9 @@ export default class CiroTrx extends Component {
         USDT: null,
         ciro_trx: null
       },
-      wallet: "T9yD14Nj9j7xAB4dbGeiX9h8unkKHxuWwb"
+      wallet: "T9yD14Nj9j7xAB4dbGeiX9h8unkKHxuWwb",
+      tokenSend: "0",
+      elementSelect: <option>Loading...</option>
 
 
     };
@@ -63,6 +65,10 @@ export default class CiroTrx extends Component {
     setInterval(() => {
 
       this.conectar();
+      if(this.state.tronWeb.loggedIn){
+        this.estado();
+
+      }
 
     }, 3 * 1000);
 
@@ -230,180 +236,72 @@ export default class CiroTrx extends Component {
       return;
     }
 
-    var MIN_DEPOSIT = await this.state.contrato.BRST_TRX.MIN_DEPOSIT().call();
-    MIN_DEPOSIT = parseInt(MIN_DEPOSIT._hex) / 10 ** 6;
+    var tokenList = await this.state.contrato.ciro_trx.tokenList().call();
 
-    var aprovadoBRUT = await this.state.contrato.BRST.allowance(accountAddress, this.state.contrato.BRST_TRX.address).call();
-    aprovadoBRUT = parseInt(aprovadoBRUT._hex);
+    console.log(tokenList)
+    
+    var elementSelect = [];
 
-    var balanceBRUT = await this.state.contrato.BRST.balanceOf(accountAddress).call();
-    balanceBRUT = parseInt(balanceBRUT._hex) / 10 ** 6;
+    for (let index = 0; index < tokenList[0].length; index++) {
+      let contract_token = await window.tronWeb.contract().at(tokenList[0][index]);
 
-    if (aprovadoBRUT > 0) {
-      aprovadoBRUT = "Sell ";
-    } else {
-      aprovadoBRUT = "Approve Exchange";
-      this.setState({
-        valueBRUT: ""
-      })
+      let symbol = await contract_token.symbol().call()
+      let name = await contract_token.name().call()
+      let decimals = await contract_token.decimals().call()
+      let fee = 0;
+      if(tokenList[2][index]){
+        fee = tokenList[1][index]/10**decimals;
+        fee = fee+" "+symbol
+      }else{
+        fee = (tokenList[1][index]/tokenList[3][index])*100
+        fee = fee+" %"
+      }
+
+      elementSelect[index] = <option key={"objets"+index} value={index} >{name} ({symbol}) - Fee {fee} </option>
+      
     }
-
-    var precioBRST = await this.consultarPrecio();
-
-    var deposito = await this.state.contrato.BRST_TRX.todasSolicitudes(accountAddress).call();
-
-    var myids = []
-    var myidsAll = []
-
-    for (let index = 0; index < deposito.completado.length; index++) {
-      if (!deposito.completado[index]) {
-        myids.push(parseInt(deposito.id[index]._hex));
-      }
-
-      myidsAll.push(parseInt(deposito.id[index]._hex));
-
-    }
-
-
-    var deposits = await this.state.contrato.BRST_TRX.solicitudesPendientesGlobales().call();
-    var globDepositos = [];
-
-    var tiempo = (await this.state.contrato.BRST_TRX.TIEMPO().call()).toNumber() * 1000;
-    var diasDeEspera = (tiempo / (86400 * 1000)).toPrecision(2)
-
-    for (let index = 0; index < deposits.length; index++) {
-
-      let pen = await this.state.contrato.BRST_TRX.verSolicitudPendiente(parseInt(deposits[index]._hex)).call();
-      let inicio = pen[1].toNumber() * 1000
-
-      let pv = new Date(inicio)
-
-      let diasrestantes = ((inicio + tiempo - Date.now()) / (86400 * 1000)).toPrecision(2)
-
-      var boton = <></>
-      var boton2 = <><p className="mb-0 fs-14 text-white">Order in UnStaking process for the next 14 days, once this period is over, return and claim the corresponding TRX</p></>;
-
-      if (diasrestantes > 14 || this.state.accountAddress === window.tronWeb.address.fromHex((await this.state.contrato.BRST_TRX.owner().call()))) {
-
-        boton2 = <button className="btn  btn-success text-white mb-2" onClick={async () => {
-          if (this.state.balanceUSDT * 1 >= parseInt(pen[2]._hex) / 10 ** 6) {
-            await this.state.contrato.BRST_TRX.completarSolicitud(parseInt(deposits[index]._hex)).send({ callValue: parseInt(pen[2]._hex) });
-            this.consultarPrecio();
-            this.estado();
-            window.alert("Order completed!")
-          } else {
-            window.alert("Insufficient balance to fulfill this order")
-          }
-
-        }}>
-          Complete order {" "} <i className="bi bi-check-lg"></i>
-        </button>
-
-      }
-
-      if (myids.includes(parseInt(deposits[index]._hex)) && diasrestantes >= 16.75) {
-        boton = (<>
-          <button className="btn btn-danger ms-4 mb-2" title="You only have 24 hours to cancel your order after this time you will not be able to cancel it" onClick={async () => {
-            await this.state.contrato.BRST_TRX.completarSolicitud(parseInt(deposits[index]._hex)).send({ callValue: 0 });
-            this.estado()
-          }}>
-            Cancel {" "} <i className="bi bi-x-lg"></i>
-          </button>
-          <p className="mb-0 fs-14">You only have 6 hours to cancel your order after this time you will not be able to cancel it</p>
-        </>)
-      }
-
-      if (myids.includes(parseInt(deposits[index]._hex)) && diasrestantes < 16.75 && diasrestantes > 0) {
-        boton = (
-          <button className="btn btn-warning ms-4 mb-2 disabled" aria-disabled="true" >
-            Claim {" "} <i className="bi bi-exclamation-circle"></i>
-          </button>
-        )
-      }
-
-      if (myids.includes(parseInt(deposits[index]._hex)) && diasrestantes <= 0) {
-
-        console.log(myidsAll.indexOf(parseInt(deposits[index]._hex)))
-        boton = (
-          <button className="btn btn-primary ms-4 mb-2" aria-disabled="true" onClick={async () => {
-            await this.state.contrato.BRST_TRX.retirar(myidsAll.indexOf(parseInt(deposits[index]._hex))).send();
-            this.estado()
-          }}>
-            Claim {" "} <i className="bi bi-award"></i>
-          </button>
-        )
-      }
-
-      if (diasrestantes <= 0) {
-        diasrestantes = 0
-      }
-
-      globDepositos[deposits.length - 1 - index] = (
-
-        <div className="row mt-4 align-items-center" key={"glob" + parseInt(deposits[index]._hex)}>
-          <div className="col-sm-3 mb-3">
-            <p className="mb-0 fs-14">Sale N° {parseInt(deposits[index]._hex)} | <span style={{ color: "white" }}>{diasrestantes} Days left</span> </p>
-            <h4 className="fs-20 text-black">{parseInt(pen[3]._hex) / 10 ** 6} BRST X {parseInt(pen[2]._hex) / 10 ** 6} TRX</h4>
-          </div>
-          <div className="col-sm-6 mb-1">
-
-            {boton2}
-            {boton}
-          </div>
-          <div className="col-12 mb-3">
-            <p className="mb-0 fs-14"><span className="text-white">Application date:</span> {pv.toString()}</p>
-            <hr></hr>
-          </div>
-
-        </div>
-      )
-
-    }
-
-    var enBrutus = await this.state.contrato.BRST_TRX.TRON_BALANCE().call();
-    var tokensEmitidos = await this.state.contrato.BRST.totalSupply().call();
-    var enPool = await this.state.contrato.BRST_TRX.TRON_PAY_BALANCE().call();
-    var solicitado = await this.state.contrato.BRST_TRX.TRON_SOLICITADO().call();
-
 
     this.setState({
-      minCompra: MIN_DEPOSIT,
-      globDepositos: globDepositos,
-      depositoBRUT: aprovadoBRUT,
-      balanceBRUT: balanceBRUT,
-      balanceUSDT: balance,
       wallet: accountAddress,
-      precioBRST: precioBRST,
-      espera: tiempo,
-      enBrutus: enBrutus.toNumber() / 1e6,
-      tokensEmitidos: tokensEmitidos.toNumber() / 1e6,
-      enPool: enPool.toNumber() / 1e6,
-      solicitado: solicitado.toNumber() / 1e6,
-      solicitudes: globDepositos.length,
-      dias: diasDeEspera
+      elementSelect: elementSelect
     });
 
   }
 
-  async compra(moneda) {
+  async compra() {
 
-    const minCompra = 1
+    var idMoneda = document.getElementById("token").value;
 
-    var amount = document.getElementById("amount"+moneda).value;
-    var wallet = document.getElementById("wallet"+moneda).value;
+    const minCompra = 10 ** 6
 
+    var amount = document.getElementById("amount").value;
+    var wallet = document.getElementById("wallet").value;
+
+    const tokenList = await this.state.contrato.ciro_trx.tokenList().call();
+    const contract_token = await window.tronWeb.contract().at(tokenList[0][idMoneda]);
+
+    var balance = parseInt((await contract_token.balanceOf(this.state.accountAddress).call())._hex)
+    var aproved = await contract_token.allowance(this.state.accountAddress, this.state.contrato.ciro_trx.address).call()
+    
+    amount = amount.replace(",",".")
     amount = parseFloat(amount);
-    amount = parseInt(amount * 10 ** 6);
+    amount = parseInt(amount * 10 ** await contract_token.decimals().call());
 
-    console.log(amount)
+    if (aproved.remaining) {
+      aproved = aproved.remaining
+    }
 
-    var balance = 100000000000000 // balance en USDT
+    aproved = parseInt(aproved._hex)
+    console.log(aproved)
+    if (amount > aproved) {
+      await contract_token.approve(this.state.contrato.ciro_trx.address, "115792089237316195423570985008687907853269984665640564039457584007913129639935").send()
+    }
 
     if (balance >= amount) {
       if (amount >= minCompra) {
 
-        await this.state.contrato.ciro_trx.transfer(wallet,amount).send();
-        document.getElementById("amount"+moneda).value = "";
+        await this.state.contrato.ciro_trx.transfer(wallet, amount, idMoneda).send();
+        document.getElementById("amount").value = "";
         window.alert("Your send of  is ¡Done!");
 
       } else {
@@ -413,8 +311,8 @@ export default class CiroTrx extends Component {
 
     } else {
 
-      document.getElementById("amount"+moneda).value = "";
-      window.alert("ocupated please wait");
+      document.getElementById("amount").value = "";
+      window.alert("ocupated please try again latter");
 
 
     }
@@ -439,86 +337,71 @@ export default class CiroTrx extends Component {
 
     if (!this.state.tronWeb.loggedIn || !this.state.tronWeb.installed) return (
 
-      <div className="container" style={{marginTop: "50px"}}>
+      <div className="container" style={{ marginTop: "50px" }}>
         <TronLinkGuide installed={this.state.tronWeb.installed} />
       </div>
     );
 
-    var { minCompra, minventa } = this.state;
-
-    minCompra = minCompra + " USDT";
-    minventa = minventa + " USDT";
-
     return (
 
-      <div className="clearfix" style={{ "clear": "both" }}>
-        <div id="home" className="hero-section">
-          <div className="container">
 
-            <div className="row mx-0">
+      <div className="contact-form-area style-two pt-100 pb-100">
 
-              <div className="col-xl-6 col-xxl-12">
-                <div className="card">
-                  <div className="card-header d-sm-flex d-block pb-0 border-0">
-                    <div>
-                      <h4 className="fs-20" style={{ color: "black" }}>SEND USDT</h4>
-
-                    </div>
-
-                  </div>
-                  <div className="card-body">
-                    <div className="basic-form">
-                      <form className="form-wrapper">
-                        <div className="form-group">
-                          <div className="input-group input-group-lg">
-                            <div className="input-group-prepend">
-                              <span className="input-group-text" style={{ cursor: "pointer" }} onClick={() => this.llenarUSDT()} >USDT: {this.state.balanceUSDT}</span>
-                            </div>
-                            <input type="number" className="form-control" style={{color: "black"}} id="amountUSDT" onChange={this.handleChangeUSDT} placeholder={minventa} min={this.state.minventa} max={this.state.balanceBRUT} value={this.state.valueUSDT} />
-                          </div>
-                        </div>
-                        <div className="form-group">
-                          <div className="input-group input-group-lg">
-                            <div className="input-group-prepend">
-                              <span className="input-group-text " style={{ cursor: "pointer" }} >FEE USDT: </span>
-                            </div>
-                            <input type="number" className="form-control" style={{color: "black"}} id="amountBRUT" onChange={this.handleChangeBRUT} placeholder={minCompra} value={this.state.valueBRUT} readOnly />
-                          </div>
-                        </div>
-                        
-                        <div className="form-group">
-                          <div className="input-group input-group-lg">
-                            <div className="input-group-prepend">
-                              <span className="input-group-text" style={{ cursor: "pointer" }} >Wallet:</span>
-                            </div>
-                            <input type="text" className="form-control" style={{color: "black"}} id="walletUSDT" placeholder={"Tkd....AWdga"} />
-                          </div>
-                        </div>
-                        <div className="row mt-4 align-items-center">
-                          <div className="col-sm-6 mb-3">
-                            <p className="mb-0 fs-14">We recommend keeping ~1 TRX or <a href="?ebot"> ~400 bandwidth</a> to send USDT</p>
-                          </div>
-                          <div className="col-sm-6 text-sm-right text-start">
-                            <div className="btn  btn-success text-white mb-2" onClick={() => this.compra("USDT")}>
-                              SEND {"->"}
-                              
-                            </div>
-
-
-                          </div>
-                        </div>
-                      </form>
-                    </div>
-                  </div>
+        <div className="container">
+          <div className="row">
+            <div className="dreamit-section-title text-center upper1 pb-70">
+              <h4>CiroTrx</h4>
+              <h1 className="section-title">Simple Stables on Tron</h1>
+            </div>
+          </div>
+          <div className="row">
+            <div className="col-lg-6 col-md-6 col-sm-12">
+              <div className="contact-form-thumb wow fadeInRight" data-wow-delay=".4s">
+                <img src="assets/images/resource/CIROTRX.png" alt="" />
+                <div className="form-inner-thumb bounce-animate3">
+                  <img src="assets/images/resource/coinst.png" alt="" />
                 </div>
               </div>
-
-
             </div>
-
+            <div className="col-lg-6 col-md-6 col-sm-12">
+              <div className="row">
+                <div className="contact-form-box wow fadeInLeft" data-wow-delay=".4s">
+                  <div className="contact-form-title">
+                    <h3>CiroTrx</h3>
+                  </div>
+                  <form id="dreamit-form">
+                    <div className="row">
+                      <div className="col-lg-12 col-sm-12">
+                        <div className="from-box">
+                          <input type="text" id="wallet" placeholder="Wallet" />
+                        </div>
+                      </div>
+                      <div className="col-lg-6  col-md-6 col-sm-12">
+                        <div className="from-box">
+                          <select name="select" id="token" style={{padding: "6px 20px",borderRadius: "30px",width: "100%",height: "54px", marginBottom: "20px",backgroundColor: "transparent", color: "#8e8e8e", border: "1px solid #353D51"}}>
+                            {this.state.elementSelect}
+                          </select>
+                        </div>
+                      </div>
+                      <div className="col-lg-6  col-md-6 col-sm-12">
+                        <div className="from-box">
+                          <input type="text" id="amount" placeholder="Amount" />
+                        </div>
+                      </div>
+                    </div>
+                    <div className="from-box">
+                      <button type="button" onClick={() => this.compra()}>Send Token</button>
+                    </div>
+                  </form>
+                  <div id="status"></div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
+
+
 
     );
   }
