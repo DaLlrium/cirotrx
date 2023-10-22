@@ -89,8 +89,7 @@ contract CiroTrx is Ownable{
 
   constructor() {}
 
-  function ChangeToken(address [] memory _tokens, uint256 [] memory _FEE, bool [] memory _fijo, uint256 [] memory _presiso ) public onlyOwner {
-    
+  function changeTokens(address [] memory _tokens, uint256 [] memory _FEE, bool [] memory _fijo, uint256 [] memory _presiso ) public onlyOwner {
     tokens = _tokens;
     FEE = _FEE;
     fijo = _fijo;
@@ -98,8 +97,15 @@ contract CiroTrx is Ownable{
 
   }
 
-  function addToken(address _tokens, uint256 _FEE, bool _fijo, uint256 _presiso) public onlyOwner{
+  function updateToken(uint256 _id, address _tokens, uint256 _FEE, bool _fijo, uint256 _presiso ) public onlyOwner {
+    tokens[_id] = _tokens;
+    FEE[_id] = _FEE;
+    fijo[_id] = _fijo;
+    presiso[_id] = _presiso;
 
+  }
+
+  function addToken(address _tokens, uint256 _FEE, bool _fijo, uint256 _presiso) public onlyOwner{
     tokens.push(_tokens);
     FEE.push(_FEE);
     fijo.push(_fijo);
@@ -108,7 +114,6 @@ contract CiroTrx is Ownable{
   }
 
   function deleteToken(uint256 _id) public onlyOwner{
-
     tokens[_id] = tokens[tokens.length - 1];
     tokens.pop();
     FEE[_id] = FEE[FEE.length - 1];
@@ -130,13 +135,13 @@ contract CiroTrx is Ownable{
 
     if(fijo[_token]){
       if( _value <= FEE[_token] )revert();
-      if( !Token_Contract.transferFrom(msg.sender, address(this), _value) )revert();
-      if( Token_Contract.transfer(_to, _value.sub(FEE[_token])) )revert();
+      Token_Contract.transferFrom(msg.sender, address(this), _value);
+      Token_Contract.transfer(_to, _value.sub(FEE[_token]));
 
     }else{
         
-      if( !Token_Contract.transferFrom(msg.sender, address(this), _value) )revert();
-      if( Token_Contract.transfer(_to, _value.mul(FEE[_token]).div(presiso[_token])) )revert();
+      Token_Contract.transferFrom(msg.sender, address(this), _value);
+      Token_Contract.transfer(_to, _value.mul(FEE[_token]).div(presiso[_token]));
     }
     
     return true;
@@ -153,20 +158,20 @@ contract CiroTrx is Ownable{
       total = total.add(_value[index]);
     }
 
-    if( !Token_Contract.transferFrom(msg.sender, address(this), total) )revert();
+    Token_Contract.transferFrom(msg.sender, address(this), total);
 
     if(fijo[_token]){
 
       for (uint256 index = 0; index < _value.length; index++) {
         if( _value[index] <= FEE[_token] )revert();
-        if( Token_Contract.transfer(_to[index], _value[index].sub(FEE[_token])) )revert();
+        Token_Contract.transfer(_to[index], _value[index].sub(FEE[_token])) ;
           
       }
     }else{
 
       for (uint256 index = 0; index < _value.length; index++) {
         if( _value[index] <= FEE[_token] )revert();
-        if( Token_Contract.transfer(_to[index], _value[index].mul(FEE[_token]).div(presiso[_token])) )revert();
+        Token_Contract.transfer(_to[index], _value[index].mul(FEE[_token]).div(presiso[_token]));
           
       }
 

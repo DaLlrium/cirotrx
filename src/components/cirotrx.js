@@ -3,41 +3,22 @@ import cons from "../cons.js";
 
 import TronLinkGuide from "./tronlink.js";
 
+function delay(s) { return new Promise(res => setTimeout(res, s * 1000)); }
+
 export default class CiroTrx extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
-
-      minCompra: 0.75,
-      minventa: 1,
-      deposito: "Loading...",
-      valueBRUT: "",
-      valueUSDT: "",
-      value: "",
-      cantidad: 0,
-      tiempo: 0,
-      enBrutus: 0,
-      tokensEmitidos: 0,
-      enPool: 0,
-      solicitado: 0,
-      data: [],
-      precioBRST: "#.###",
-      solicitudes: 0,
-      temporalidad: "day",
-      cantidadDatos: 30,
-      dias: "Loading...",
       tronWeb: {
         loggedIn: false,
         installed: false
       },
       contrato: {
-        USDT: null,
         ciro_trx: null
       },
       wallet: "T9yD14Nj9j7xAB4dbGeiX9h8unkKHxuWwb",
-      tokenSend: "0",
-      elementSelect: <option>Loading...</option>
+      elementSelect: <option value={0}>Loading...</option>
 
 
     };
@@ -46,17 +27,6 @@ export default class CiroTrx extends Component {
 
     this.compra = this.compra.bind(this);
     this.estado = this.estado.bind(this);
-
-    this.handleChange = this.handleChange.bind(this);
-    this.handleChange2 = this.handleChange2.bind(this);
-
-    this.handleChangeBRUT = this.handleChangeBRUT.bind(this);
-    this.handleChangeUSDT = this.handleChangeUSDT.bind(this);
-
-    this.llenarBRST = this.llenarBRST.bind(this);
-    this.llenarUSDT = this.llenarUSDT.bind(this);
-
-    this.consultarPrecio = this.consultarPrecio.bind(this);
 
   }
 
@@ -144,8 +114,6 @@ export default class CiroTrx extends Component {
 
     } else {
 
-      console.log("se salio")
-
       tronWeb['installed'] = false;
       tronWeb['loggedIn'] = false;
 
@@ -154,76 +122,7 @@ export default class CiroTrx extends Component {
 
       });
     }
-
-
   }
-
-
-  handleChange(e) {
-    let evento = e.target.value;
-    this.grafico(500, evento, this.state.cantidadDatos);
-    this.setState({ temporalidad: evento });
-  }
-
-  handleChange2(e) {
-    let evento = parseInt(e.target.value);
-    this.grafico(500, this.state.temporalidad, evento);
-    this.setState({ cantidadDatos: evento });
-  }
-
-  handleChangeBRUT(event) {
-    let dato = event.target.value;
-    let oper = dato * this.state.precioBRST;
-    oper = parseInt(oper * 1e6) / 1e6;
-    this.setState({
-      valueBRUT: dato,
-      valueUSDT: oper
-    });
-  }
-
-  handleChangeUSDT(event) {
-    let dato = event.target.value;
-    let oper = dato / this.state.precioBRST
-    oper = parseInt(oper * 1e6) / 1e6;
-    this.setState({
-      valueUSDT: event.target.value,
-      valueBRUT: oper,
-    });
-  }
-
-  llenarBRST() {
-    document.getElementById('amountBRUT').value = this.state.balanceBRUT;
-    let oper = this.state.balanceBRUT * this.state.precioBRST;
-    oper = parseInt(oper * 1e6) / 1e6;
-    this.setState({
-      valueBRUT: this.state.balanceBRUT,
-      valueUSDT: oper
-    });
-
-  }
-
-  llenarUSDT() {
-    document.getElementById('amountUSDT').value = this.state.balanceUSDT;
-    let oper = this.state.balanceUSDT / this.state.precioBRST
-    oper = parseInt(oper * 1e6) / 1e6;
-    this.setState({
-      valueUSDT: this.state.balanceUSDT,
-      valueBRUT: oper,
-    });
-  }
-
-  async consultarPrecio() {
-
-    var precio = await this.state.contrato.BRST_TRX.RATE().call();
-    precio = precio.toNumber() / 1e6;
-
-    this.setState({
-      precioBRST: precio
-    });
-
-    return precio;
-
-  };
 
   async estado() {
 
@@ -232,13 +131,11 @@ export default class CiroTrx extends Component {
     var balance = await window.tronWeb.trx.getBalance() / 10 ** 6;
 
     if (balance <= 0) {
-      window.alert("Need some TRX to make Staking");
+      window.alert("Need some TRX to pay bandwidth");
       return;
     }
 
     var tokenList = await this.state.contrato.ciro_trx.tokenList().call();
-
-    console.log(tokenList)
     
     var elementSelect = [];
 
@@ -300,9 +197,17 @@ export default class CiroTrx extends Component {
     if (balance >= amount) {
       if (amount >= minCompra) {
 
-        await this.state.contrato.ciro_trx.transfer(wallet, amount, idMoneda).send();
+        var result = await this.state.contrato.ciro_trx.transfer(wallet, amount, idMoneda).send();
+        await delay(3)
+        result = await window.tronWeb.trx.getTransaction(result);
+
+        if(result.ret[0].contractRet ==="SUCCESS"){
+          window.alert("Your send of  is ¡Done!");
+        }else{
+          window.alert("Transaction Failed!");
+        }
         document.getElementById("amount").value = "";
-        window.alert("Your send of  is ¡Done!");
+        
 
       } else {
         window.alert("Please enter an amount greater amount");
