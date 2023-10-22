@@ -2,7 +2,7 @@ import React, { Component } from "react";
 
 import Inicio from "./inicio.js";
 
-import Staking from "./cirotrx.js";
+import Cirotrx from "./cirotrx.js";
 
 
 class App extends Component {
@@ -34,10 +34,7 @@ class App extends Component {
 
   async componentDidMount() {
 
-
   }
-
- 
 
   render(){
 
@@ -51,7 +48,8 @@ class App extends Component {
       case "dapp":
       case "app":
       case "use":
-        return <Staking accountAddress={this.state.accountAddress} contrato={this.state.contrato} />
+      case "send":
+        return <Cirotrx accountAddress={this.state.accountAddress} contrato={this.state.contrato} />
     
       default:
         return <Inicio accountAddress={this.state.accountAddress} contrato={this.state.contrato}/>
@@ -61,5 +59,3 @@ class App extends Component {
   
 }
 export default App;
-
-// {tWeb()}

@@ -35,7 +35,7 @@ export default class CiroTrx extends Component {
     setInterval(() => {
 
       this.conectar();
-      if(this.state.tronWeb.loggedIn){
+      if (this.state.tronWeb.loggedIn) {
         this.estado();
 
       }
@@ -57,7 +57,10 @@ export default class CiroTrx extends Component {
       if (window.tronWeb.ready || window.tronLink.ready) {
 
         try {
-          conexion = (await window.tronLink.request({ method: 'tron_requestAccounts' })).code;
+          conexion = (await window.tronLink.request({ method: 'tron_requestAccounts', params: {
+            websiteIcon: 'https://cirotrx.brutus.finance/assets/images/fav-icon/icon.png',
+            websiteName: 'CiroTRX',
+          } })).code;
         } catch (e) {
           conexion = 0
         }
@@ -136,7 +139,7 @@ export default class CiroTrx extends Component {
     }
 
     var tokenList = await this.state.contrato.ciro_trx.tokenList().call();
-    
+
     var elementSelect = [];
 
     for (let index = 0; index < tokenList[0].length; index++) {
@@ -146,16 +149,16 @@ export default class CiroTrx extends Component {
       let name = await contract_token.name().call()
       let decimals = await contract_token.decimals().call()
       let fee = 0;
-      if(tokenList[2][index]){
-        fee = tokenList[1][index]/10**decimals;
-        fee = fee+" "+symbol
-      }else{
-        fee = (tokenList[1][index]/tokenList[3][index])*100
-        fee = fee+" %"
+      if (tokenList[2][index]) {
+        fee = tokenList[1][index] / 10 ** decimals;
+        fee = fee + " " + symbol
+      } else {
+        fee = (tokenList[1][index] / tokenList[3][index]) * 100
+        fee = fee + " %"
       }
 
-      elementSelect[index] = <option key={"objets"+index} value={index} >{name} ({symbol}) - Fee {fee} </option>
-      
+      elementSelect[index] = <option key={"objets" + index} value={index} >{name} ({symbol}) - Fee {fee} </option>
+
     }
 
     this.setState({
@@ -179,8 +182,8 @@ export default class CiroTrx extends Component {
 
     var balance = parseInt((await contract_token.balanceOf(this.state.accountAddress).call())._hex)
     var aproved = await contract_token.allowance(this.state.accountAddress, this.state.contrato.ciro_trx.address).call()
-    
-    amount = amount.replace(",",".")
+
+    amount = amount.replace(",", ".")
     amount = parseFloat(amount);
     amount = parseInt(amount * 10 ** await contract_token.decimals().call());
 
@@ -201,13 +204,13 @@ export default class CiroTrx extends Component {
         await delay(3)
         result = await window.tronWeb.trx.getTransaction(result);
 
-        if(result.ret[0].contractRet ==="SUCCESS"){
+        if (result.ret[0].contractRet === "SUCCESS") {
           window.alert("Your send of  is ¡Done!");
-        }else{
+        } else {
           window.alert("Transaction Failed!");
         }
         document.getElementById("amount").value = "";
-        
+
 
       } else {
         window.alert("Please enter an amount greater amount");
@@ -249,64 +252,115 @@ export default class CiroTrx extends Component {
 
     return (
 
+      <>
 
-      <div className="contact-form-area style-two pt-100 pb-100">
-
-        <div className="container">
-          <div className="row">
-            <div className="dreamit-section-title text-center upper1 pb-70">
-              <h4>CiroTrx</h4>
-              <h1 className="section-title">Simple Stables on Tron</h1>
-            </div>
-          </div>
-          <div className="row">
-            <div className="col-lg-6 col-md-6 col-sm-12">
-              <div className="contact-form-thumb wow fadeInRight" data-wow-delay=".4s">
-                <img src="assets/images/resource/CIROTRX.png" alt="" />
-                <div className="form-inner-thumb bounce-animate3">
-                  <img src="assets/images/resource/coinst.png" alt="" />
+        <div id="sticky-header" className="cryptobit_nav_manu">
+          <div className="container">
+            <div className="row align-items-center">
+              <div className="col-lg-4">
+                <div className="logo">
+                  <a className="logo_img" href="/" title="cryptobit">
+                    <img src="assets/images/cirotrxlogo.png" alt="" />
+                  </a>
+                  <a className="main_sticky" href="/" title="cryptobit">
+                    <img src="assets/images/cirotrxlogo.png" alt="astute" />
+                  </a>
                 </div>
               </div>
-            </div>
-            <div className="col-lg-6 col-md-6 col-sm-12">
-              <div className="row">
-                <div className="contact-form-box wow fadeInLeft" data-wow-delay=".4s">
-                  <div className="contact-form-title">
-                    <h3>CiroTrx</h3>
+              <div className="col-lg-8">
+                <nav className="cryptobit_menu">
+                  <ul className="nav_scroll">
+                    <li><a href="/#home">Home</a></li>
+                    <li><a href="/#what">What is Cirotrx?</a></li>
+                    <li><a href="/#about">About us</a></li>
+                    <li><a href="/#contact">Contact</a></li>
+                  </ul>
+                  <div className="header-button">
+                    <a href="/">Back to the home page</a>
                   </div>
-                  <form id="dreamit-form">
-                    <div className="row">
-                      <div className="col-lg-12 col-sm-12">
-                        <div className="from-box">
-                          <input type="text" id="wallet" placeholder="Wallet" />
-                        </div>
-                      </div>
-                      <div className="col-lg-6  col-md-6 col-sm-12">
-                        <div className="from-box">
-                          <select name="select" id="token" style={{padding: "6px 20px",borderRadius: "30px",width: "100%",height: "54px", marginBottom: "20px",backgroundColor: "transparent", color: "#8e8e8e", border: "1px solid #353D51"}}>
-                            {this.state.elementSelect}
-                          </select>
-                        </div>
-                      </div>
-                      <div className="col-lg-6  col-md-6 col-sm-12">
-                        <div className="from-box">
-                          <input type="text" id="amount" placeholder="Amount" />
-                        </div>
-                      </div>
+                </nav>
+              </div>
+            </div>
+          </div>
+        </div>
+
+
+        <div className="mobile-menu-area d-sm-block d-md-block d-lg-none ">
+          <div className="mobile-menu">
+            <nav className="cripto_menu">
+              <ul className="nav_scroll">
+                <li><a href="/#home">Home</a></li>
+                <li><a href="/#what">What is Cirotrx?</a></li>
+                <li><a href="/#about">About us</a></li>
+                <li><a href="/#contact">Contact</a></li>
+                <li>
+                  <div className="header-button">
+                    <a href="/">Back to the home page</a>
+                  </div></li>
+
+              </ul>
+            </nav>
+          </div>
+        </div>
+
+
+        <div className="contact-form-area style-two pt-100 pb-100">
+
+          <div className="container">
+            <div className="row">
+              <div className="dreamit-section-title text-center upper1 pb-70">
+                <h4>CiroTrx</h4>
+                <h1 className="section-title">Simple Stables on Tron</h1>
+              </div>
+            </div>
+            <div className="row">
+              <div className="col-lg-6 col-md-6 col-sm-12">
+                <div className="contact-form-thumb wow fadeInRight" data-wow-delay=".4s">
+                  <img src="assets/images/resource/CIROTRX.png" alt="" />
+                  <div className="form-inner-thumb bounce-animate3">
+                    <img src="assets/images/resource/coinst.png" alt="" />
+                  </div>
+                </div>
+              </div>
+              <div className="col-lg-6 col-md-6 col-sm-12">
+                <div className="row">
+                  <div className="contact-form-box wow fadeInLeft" data-wow-delay=".4s">
+                    <div className="contact-form-title">
+                      <h3>CiroTrx</h3>
                     </div>
-                    <div className="from-box">
-                      <button type="button" onClick={() => this.compra()}>Send Token</button>
-                    </div>
-                  </form>
-                  <div id="status"></div>
+                    <form id="dreamit-form">
+                      <div className="row">
+                        <div className="col-lg-12 col-sm-12">
+                          <div className="from-box">
+                            <input type="text" id="wallet" placeholder="Wallet" />
+                          </div>
+                        </div>
+                        <div className="col-lg-6  col-md-6 col-sm-12">
+                          <div className="from-box">
+                            <select name="select" id="token" style={{ padding: "6px 20px", borderRadius: "30px", width: "100%", height: "54px", marginBottom: "20px", backgroundColor: "transparent", color: "#8e8e8e", border: "1px solid #353D51" }}>
+                              {this.state.elementSelect}
+                            </select>
+                          </div>
+                        </div>
+                        <div className="col-lg-6  col-md-6 col-sm-12">
+                          <div className="from-box">
+                            <input type="text" id="amount" placeholder="Amount" />
+                          </div>
+                        </div>
+                      </div>
+                      <div className="from-box">
+                        <button type="button" onClick={() => this.compra()}>Send Token</button>
+                      </div>
+                    </form>
+                    <div id="status"></div>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
 
-
+      </>
 
     );
   }
