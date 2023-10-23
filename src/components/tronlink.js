@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import TronLinkLogo from './TronLinkLogo.png';
-import { param } from 'jquery';
 
 const WEBSTORE_URL = 'https://chrome.google.com/webstore/detail/ibnejdfjmmkpcnlpebklmnkoeoihofec/';
 
@@ -26,18 +25,6 @@ export default class TronLinkGuide extends Component {
 
     render() {
 
-        var params = {
-            "action": "open",
-            "protocol": "tronlink",
-            "version": "1.0"
-        }
-
-        params = encodeURI(JSON.stringify(params))
-
-        console.log(params)
-
-        var url = 'tronlinkoutside://pull.activity?param='+params+'';
-
         var {installed} = this.props;
 
         var elemento = <></>;
@@ -59,7 +46,7 @@ export default class TronLinkGuide extends Component {
         }else{
 
             elemento = (
-            <a href={url}>
+            <a href={"/"}>
                 <div className='row' >
     
                     <div className='col-sm-8'>

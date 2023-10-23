@@ -79,13 +79,13 @@ interface TRC20_Interface {
 
 }
 
-contract CiroTrx is Ownable{
+contract CiroFee is Ownable{
   using SafeMath for uint256;
 
-  address [] public tokens = [0x36Cb81511B76E934F1F3aAAde2aD5c2dFA700189, 0x36Cb81511B76E934F1F3aAAde2aD5c2dFA700189];
-  uint256 [] public FEE = [75 * 10**4, 10];
-  bool [] public fijo = [true, false];
-  uint256 [] public presiso = [100, 100];
+  address [] public tokens = [0xa614f803B6FD780986A42c78Ec9c7f77e6DeD13C, 0x94F24E992cA04B49C6f2a2753076Ef8938eD4daa,0x3487b63D30B5B2C87fb7fFa8bcfADE38EAaC1abe,0xcEbDE71077b830B958C8da17bcddeeB85D0BCf25,0x148cf421E250b13E3Ae00D65977bbA14d70DD9f7,0x83c91BfDE3e6D130E286A3722F171ae49fb25047,0x834295921A488D9d42b4b3021ED1a3C39fB0f03e];
+  uint256 [] public FEE = [75*10**4, 50*10**4, 75*10**4, 75*10**4, 75*10**5, 75*10**4, 50*10**4];
+  bool [] public fijo = [true, true, true, true, true, true, true];
+  uint256 [] public presiso = [100, 100, 100, 100, 100, 100, 100];
 
   constructor() {}
 

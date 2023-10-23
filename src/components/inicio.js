@@ -7,56 +7,6 @@ export default class Inicio extends Component {
 		return (
 			<>
 
-				<div id="sticky-header" className="cryptobit_nav_manu">
-					<div className="container">
-						<div className="row align-items-center">
-							<div className="col-lg-4">
-								<div className="logo">
-									<a className="logo_img" href="/" title="cryptobit">
-										<img src="assets/images/cirotrxlogo.png" alt="" />
-									</a>
-									<a className="main_sticky" href="/" title="cryptobit">
-										<img src="assets/images/cirotrxlogo.png" alt="astute" />
-									</a>
-								</div>
-							</div>
-							<div className="col-lg-8">
-								<nav className="cryptobit_menu">
-									<ul className="nav_scroll">
-										<li><a href="#home">Home</a></li>
-										<li><a href="#what">What is Cirotrx?</a></li>
-										<li><a href="#about">About us</a></li>
-										<li><a href="#contact">Contact</a></li>
-									</ul>
-									<div className="header-button">
-										<a href="?dapp">Connect to the DApp</a>
-									</div>
-								</nav>
-							</div>
-						</div>
-					</div>
-				</div>
-
-
-				<div className="mobile-menu-area d-sm-block d-md-block d-lg-none ">
-					<div className="mobile-menu">
-						<nav className="cripto_menu">
-							<ul className="nav_scroll">
-								<li><a href="#home">Home</a></li>
-								<li><a href="#what">What is Cirotrx?</a></li>
-								<li><a href="#about">About us</a></li>
-								<li><a href="#contact">Contact</a></li>
-								<li>
-									<div className="header-button">
-										<a href="?dapp">Connect to the DApp</a>
-									</div></li>
-
-							</ul>
-						</nav>
-					</div>
-				</div>
-
-
 				<div className="clearfix" style={{ clear: "both" }}></div>
 				<div id="home" className="hero-section">
 					<div className="container">

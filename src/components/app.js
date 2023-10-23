@@ -46,9 +46,23 @@ class App extends Component {
     switch (url) {
 
       case "dapp":
-      case "app":
-      case "use":
-      case "send":
+
+        var clases = document.getElementsByClassName("tiemMenu")
+
+        for (let index = 0; index < clases.length; index++) {
+          console.log(clases[index].href)
+          let url = (clases[index].href).replace("?dapp","")
+          clases[index].href = url;
+          
+        }
+
+        var clases2 = document.getElementsByClassName("conectDapp")
+
+        for (let index = 0; index < clases2.length; index++) {
+          clases2[index].innerHTML = "Back to the home page";
+          
+        }
+
         return <Cirotrx accountAddress={this.state.accountAddress} contrato={this.state.contrato} />
     
       default:
