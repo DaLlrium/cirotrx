@@ -314,11 +314,13 @@ export default class CiroTrx extends Component {
                     <form id="dreamit-form">
                       <div className="row">
                         <div className="col-lg-12 col-sm-12">
+                          <p class="text-white">Receiving Account</p>
                           <div className="from-box">
-                            <input type="text" id="wallet" placeholder="Wallet" />
+                            <input type="text" id="wallet" placeholder="Paste or enter the account address" />
                           </div>
                         </div>
                         <div className="col-lg-12 col-sm-12">
+                          <p class="text-white">Choose a stablecoin</p>
                           <div className="from-box">
                             <select name="select" id="token" style={{ padding: "6px 20px", borderRadius: "30px", width: "100%", height: "54px", marginBottom: "20px", backgroundColor: "transparent", color: "#8e8e8e", border: "1px solid #353D51" }}>
                               {this.state.elementSelect}
@@ -326,8 +328,15 @@ export default class CiroTrx extends Component {
                           </div>
                         </div>
                         <div className="col-lg-12 col-sm-12">
+                          <p class="text-white">Amount</p>
                           <div className="from-box">
                             <input type="text" id="amount" placeholder="Amount" />
+                            <div class="btn-group" role="group">
+                              <button type="button" class="btn btn-secondary">25%</button>
+                              <button type="button" class="btn btn-secondary">50%</button>
+                              <button type="button" class="btn btn-secondary">75%</button>
+                              <button type="button" class="btn btn-secondary">100%</button>
+                            </div>
                           </div>
                         </div>
                       </div>
