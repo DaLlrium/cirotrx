@@ -3763,7 +3763,7 @@ div#status {
 }
 /*contact form button*/
 .from-box button {
-    margin-top: 23px;
+    margin-top: 0px;
     padding: 14px 35px 14px 65px;
     border-radius: 30px;
     font-weight: 500;

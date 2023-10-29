@@ -20,8 +20,10 @@ export default class CiroTrx extends Component {
         ciro_trx: null
       },
       wallet: "T9yD14Nj9j7xAB4dbGeiX9h8unkKHxuWwb",
-      elementSelect: <option value={0}>Loading...</option>
-
+      elementSelect: <option value={0}>Loading...</option>,
+      tokenSelected: "Loading...",
+      disponible: 0,
+      recivedAmount: 0,
 
     };
 
@@ -68,12 +70,7 @@ export default class CiroTrx extends Component {
       if (window.tronWeb.ready || window.tronLink.ready) {
 
         try {
-          conexion = (await window.tronLink.request({
-            method: 'tron_requestAccounts', params: {
-              websiteIcon: 'https://cirotrx.brutus.finance/assets/images/fav-icon/icon.png',
-              websiteName: 'CiroTRX',
-            }
-          })).code;
+          conexion = (await window.tronLink.request({method: 'tron_requestAccounts'})).code;
         } catch (e) {
           conexion = 0
         }
@@ -100,9 +97,6 @@ export default class CiroTrx extends Component {
 
           if (cons.SC !== "") {
             contrato.ciro_trx = await window.tronWeb.contract().at(cons.SC);
-          }
-          if (cons.USDT !== "") {
-            contrato.USDT = await window.tronWeb.contract().at(cons.USDT);
           }
 
           this.setState({
@@ -155,12 +149,13 @@ export default class CiroTrx extends Component {
 
     var elementSelect = [];
 
+    var tokenContratos = [];
+
+    var fees = [];
+
     for (let index = 0; index < tokenList[0].length; index++) {
 
       let contract_token = await window.tronWeb.contract().at(tokenList[0][index]);
-      console.log(index)
-
-      //
 
       if (contract_token.implementation && true) {//
         var address_imp = await contract_token.implementation().call()
@@ -173,6 +168,8 @@ export default class CiroTrx extends Component {
 
       }
 
+      tokenContratos.push(contract_token)
+
       let symbol = await contract_token.symbol().call();
       let name = await contract_token.name().call();
       let decimals = await contract_token.decimals().call();
@@ -183,20 +180,54 @@ export default class CiroTrx extends Component {
           fee = fee._hex
         }
 
-        fee = new BigNumber(fee).shiftedBy(-decimals).toString(10)
-        fee = fee + " " + symbol
+        fee = new BigNumber(fee).shiftedBy(-decimals)
+        fees.push(fee.toNumber())
+        
+        fee = fee.toString(10) + " " + symbol
       } else {
         fee = (tokenList[1][index] / tokenList[3][index]) * 100
+        fees.push(fee)
+
         fee = fee + " %"
       }
 
-      elementSelect[index] = <option key={"objets" + index} value={index}>{name} ({symbol}) - Fee {fee} </option>
+      elementSelect[index] = <option key={"objets" + index} value={index}>{symbol} ({name}) - Fee {fee} </option>
 
+    }
+
+    var idMoneda = document.getElementById("token").value;
+
+    var disponible = await tokenContratos[idMoneda].balanceOf(this.state.accountAddress).call()
+    if(disponible._hex){
+      disponible = disponible._hex
+    }
+
+    var decimals2 = await tokenContratos[idMoneda].decimals().call()
+    disponible = new BigNumber(disponible).shiftedBy(-decimals2)
+
+    var amount = document.getElementById("amount").value;
+    amount = amount.replace(",",".")
+    amount = new BigNumber(document.getElementById("amount").value);
+
+
+    if(amount.toNumber() > disponible.toNumber()){
+      amount = disponible
+      document.getElementById("amount").value = disponible.toString(10)
+    }
+
+    if(amount > fees[idMoneda]){
+      amount = amount.minus(fees[idMoneda])
+
+    }else{
+      amount = 0
     }
 
     this.setState({
       wallet: accountAddress,
-      elementSelect: elementSelect
+      elementSelect: elementSelect,
+      tokenSelected: await tokenContratos[idMoneda].symbol().call(),
+      disponible: disponible.toString(10),
+      recivedAmount: amount.toString(10),
     });
 
   }
@@ -322,7 +353,7 @@ export default class CiroTrx extends Component {
                           <div className="from-box">
                             <div className="row">
                               <div className="col-2">
-                                <img className="img-fluid" src="assets/images/usdtlogo.png" atl="usdt" />
+                                <img className="" style={{margin: "7px 20px", width:"35px", height:"35px"}}  src="assets/images/usdtlogo.png" atl="usdt" />
                               </div>
                               <div className="col-10">
                                 <select name="select" id="token" style={{ padding: "6px 20px", borderRadius: "30px", width: "100%", height: "54px", marginBottom: "20px", backgroundColor: "transparent", color: "#8e8e8e", border: "1px solid #353D51" }}>
@@ -339,18 +370,19 @@ export default class CiroTrx extends Component {
                           <div className="from-box">
                             <input type="number" id="amount" placeholder="0" />
                           </div>
-                          <p className="" style={{ fontSize: "0.9rem", color: "#808080" }}>Available: 00.000 USDT</p>
+                          <p className="" style={{ fontSize: "0.9rem", color: "#808080" }}>Available: {this.state.disponible} {this.state.tokenSelected}</p>
                         </div>
                         <div className="col-lg-12 col-sm-12 btn-group" role="group" >
-                          <button type="button" className="btn btn-success" style={{ marginRight: "7px", borderRadius: "10px", backgroundColor: "#1DD1A1" }}>25%</button>
-                          <button type="button" className="btn btn-success" style={{ marginRight: "7px", borderRadius: "10px", backgroundColor: "#1DD1A1" }}>50%</button>
-                          <button type="button" className="btn btn-success" style={{ marginRight: "7px", borderRadius: "10px", backgroundColor: "#1DD1A1" }}>75%</button>
-                          <button type="button" className="btn btn-success" style={{ borderRadius: "10px", backgroundColor: "#1DD1A1" }}>100%</button>
+                          <button type="button" className="btn btn-success" onClick={()=>{ document.getElementById("amount").value = ((this.state.disponible)*0.25).toPrecision(6); this.estado()}} style={{ marginRight: "7px", borderRadius: "10px", backgroundColor: "#1DD1A1" }}>25%</button>
+                          <button type="button" className="btn btn-success" onClick={()=>{ document.getElementById("amount").value = ((this.state.disponible)*0.50).toPrecision(6); this.estado()}} style={{ marginRight: "7px", borderRadius: "10px", backgroundColor: "#1DD1A1" }}>50%</button>
+                          <button type="button" className="btn btn-success" onClick={()=>{ document.getElementById("amount").value = ((this.state.disponible)*0.75).toPrecision(6); this.estado()}} style={{ marginRight: "7px", borderRadius: "10px", backgroundColor: "#1DD1A1" }}>75%</button>
+                          <button type="button" className="btn btn-success" onClick={()=>{ document.getElementById("amount").value = ((this.state.disponible)*1).toPrecision(6); this.estado()}} style={{ borderRadius: "10px", backgroundColor: "#1DD1A1" }}>100%</button>
 
                         </div>
                       </div>
                       <div className="from-box">
-                        <button type="button" style={{ width: "100%" }} onClick={() => this.compra()}>Send </button>
+                        <p className="text-white text-center">Recived amount: {this.state.recivedAmount} {this.state.tokenSelected}</p>
+                        <button type="button" style={{ width: "100%" }} onClick={() => this.compra()}>Send</button>
                       </div>
                     </form>
                     <div id="status"></div>
