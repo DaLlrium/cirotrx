@@ -300,9 +300,6 @@ export default class CiroTrx extends Component {
               <div className="col-lg-6 col-md-6 col-sm-12">
                 <div className="contact-form-thumb wow fadeInRight" data-wow-delay=".4s">
                   <img src="assets/images/resource/CIROTRX.png" alt="" />
-                  <div className="form-inner-thumb bounce-animate3">
-                    <img src="assets/images/resource/coinst.png" alt="" />
-                  </div>
                 </div>
               </div>
               <div className="col-lg-6 col-md-6 col-sm-12">
@@ -314,11 +311,13 @@ export default class CiroTrx extends Component {
                     <form id="dreamit-form">
                       <div className="row">
                         <div className="col-lg-12 col-sm-12">
+                          <p class="text-white">Recipient wallet</p>
                           <div className="from-box">
-                            <input type="text" id="wallet" placeholder="Wallet" />
+                            <input type="text" id="wallet" placeholder="Paste or enter the account address" />
                           </div>
                         </div>
                         <div className="col-lg-12 col-sm-12">
+                          <p class="text-white">Choose a stablecoin</p>
                           <div className="from-box">
                             <select name="select" id="token" style={{ padding: "6px 20px", borderRadius: "30px", width: "100%", height: "54px", marginBottom: "20px", backgroundColor: "transparent", color: "#8e8e8e", border: "1px solid #353D51" }}>
                               {this.state.elementSelect}
@@ -326,13 +325,20 @@ export default class CiroTrx extends Component {
                           </div>
                         </div>
                         <div className="col-lg-12 col-sm-12">
+                          <p class="text-white">Amount</p>
                           <div className="from-box">
-                            <input type="text" id="amount" placeholder="Amount" />
+                            <input type="number" id="amount" placeholder="0" />
                           </div>
+                        </div>
+                        <div className="col-lg-12 col-sm-12 btn-group" role="group" aria-label="Porcentaje de envío">
+                          <button type="button" class="btn btn-primary">25%</button>
+                          <button type="button" class="btn btn-primary">50%</button>
+                          <button type="button" class="btn btn-primary">75%</button>
+                          <button type="button" class="btn btn-primary">100%</button>
                         </div>
                       </div>
                       <div className="from-box">
-                        <button type="button" onClick={() => this.compra()}>Send Token</button>
+                        <button type="button" onClick={() => this.compra()}>Send </button>
                       </div>
                     </form>
                     <div id="status"></div>
