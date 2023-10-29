@@ -34,7 +34,7 @@ export default class CiroTrx extends Component {
 
   componentDidMount() {
     document.title = "Dapp | CiroTrx"
-    setTimeout(async() => {
+    setTimeout(async () => {
 
       await this.conectar();
       if (this.state.tronWeb.loggedIn) {
@@ -164,8 +164,8 @@ export default class CiroTrx extends Component {
 
       if (contract_token.implementation && true) {//
         var address_imp = await contract_token.implementation().call()
-        
-        if (typeof address_imp !== "string" ) { address_imp = address_imp[0] }
+
+        if (typeof address_imp !== "string") { address_imp = address_imp[0] }
         if (address_imp !== "410000000000000000000000000000000000000000") {
           let contract_imp = await window.tronWeb.contract().at(address_imp)
           contract_token = await window.tronWeb.contract(contract_imp.abi, tokenList[0][index]);
@@ -179,7 +179,7 @@ export default class CiroTrx extends Component {
       let fee = 0;
       if (tokenList[2][index]) {
         fee = tokenList[1][index];
-        if(fee._hex){
+        if (fee._hex) {
           fee = fee._hex
         }
 
@@ -190,7 +190,7 @@ export default class CiroTrx extends Component {
         fee = fee + " %"
       }
 
-      elementSelect[index] = <option key={"objets" + index} value={index} >{name} ({symbol}) - Fee {fee} </option>
+      elementSelect[index] = <option key={"objets" + index} value={index}>{name} ({symbol}) - Fee {fee} </option>
 
     }
 
@@ -293,7 +293,7 @@ export default class CiroTrx extends Component {
             <div className="row">
               <div className="dreamit-section-title text-center upper1 pb-70">
                 <h4>CiroTrx</h4>
-                <h1 className="section-title">Simple Stables on Tron</h1>
+                <h1 className="section-title">Stablecoin on TRON made simple</h1>
               </div>
             </div>
             <div className="row">
@@ -311,34 +311,46 @@ export default class CiroTrx extends Component {
                     <form id="dreamit-form">
                       <div className="row">
                         <div className="col-lg-12 col-sm-12">
-                          <p class="text-white">Recipient wallet</p>
+                          <p className="text-white">Recipient wallet</p>
                           <div className="from-box">
                             <input type="text" id="wallet" placeholder="Paste or enter the account address" />
                           </div>
                         </div>
                         <div className="col-lg-12 col-sm-12">
-                          <p class="text-white">Choose a stablecoin</p>
+                          <p className="text-white">Choose a stablecoin</p>
+
                           <div className="from-box">
-                            <select name="select" id="token" style={{ padding: "6px 20px", borderRadius: "30px", width: "100%", height: "54px", marginBottom: "20px", backgroundColor: "transparent", color: "#8e8e8e", border: "1px solid #353D51" }}>
-                              {this.state.elementSelect}
-                            </select>
+                            <div className="row">
+                              <div className="col-2">
+                                <img className="img-fluid" src="assets/images/usdtlogo.png" atl="usdt" />
+                              </div>
+                              <div className="col-10">
+                                <select name="select" id="token" style={{ padding: "6px 20px", borderRadius: "30px", width: "100%", height: "54px", marginBottom: "20px", backgroundColor: "transparent", color: "#8e8e8e", border: "1px solid #353D51" }}>
+                                  {this.state.elementSelect}
+                                </select>
+                              </div> 
+                            </div>
+
                           </div>
+
                         </div>
                         <div className="col-lg-12 col-sm-12">
-                          <p class="text-white">Amount</p>
+                          <p className="text-white">Amount</p>
                           <div className="from-box">
                             <input type="number" id="amount" placeholder="0" />
                           </div>
+                          <p className="" style={{ fontSize: "0.9rem", color: "#808080" }}>Available: 00.000 USDT</p>
                         </div>
-                        <div className="col-lg-12 col-sm-12 btn-group" role="group" aria-label="Porcentaje de envío">
-                          <button type="button" class="btn btn-primary">25%</button>
-                          <button type="button" class="btn btn-primary">50%</button>
-                          <button type="button" class="btn btn-primary">75%</button>
-                          <button type="button" class="btn btn-primary">100%</button>
+                        <div className="col-lg-12 col-sm-12 btn-group" role="group" >
+                          <button type="button" className="btn btn-success" style={{ marginRight: "7px", borderRadius: "10px", backgroundColor: "#1DD1A1" }}>25%</button>
+                          <button type="button" className="btn btn-success" style={{ marginRight: "7px", borderRadius: "10px", backgroundColor: "#1DD1A1" }}>50%</button>
+                          <button type="button" className="btn btn-success" style={{ marginRight: "7px", borderRadius: "10px", backgroundColor: "#1DD1A1" }}>75%</button>
+                          <button type="button" className="btn btn-success" style={{ borderRadius: "10px", backgroundColor: "#1DD1A1" }}>100%</button>
+
                         </div>
                       </div>
                       <div className="from-box">
-                        <button type="button" onClick={() => this.compra()}>Send </button>
+                        <button type="button" style={{ width: "100%" }} onClick={() => this.compra()}>Send </button>
                       </div>
                     </form>
                     <div id="status"></div>
