@@ -24,6 +24,7 @@ export default class CiroTrx extends Component {
       tokenSelected: "Loading...",
       disponible: 0,
       recivedAmount: 0,
+      idMoneda: 0,
 
     };
 
@@ -93,7 +94,7 @@ export default class CiroTrx extends Component {
 
         if (this.state.contrato.USDT == null) {
 
-          //window.tronWeb.setHeader({ "TRON-PRO-API-KEY": 'b0e8c09f-a9c8-4b77-8363-3cde81365fac' })
+          window.tronWeb.setHeader({ "TRON-PRO-API-KEY": process.env.REACT_APP_APIKY })
 
           contrato = {};
 
@@ -150,6 +151,10 @@ export default class CiroTrx extends Component {
 
     var idMoneda = document.getElementById("token").value;
 
+    if(parseInt(idMoneda)> 0){
+      idMoneda = 0
+    }
+
     var elementSelect = [];
 
     var tokenContratos = [];
@@ -198,12 +203,20 @@ export default class CiroTrx extends Component {
 
     }
 
+    var decimals2 = await tokenContratos[idMoneda].decimals().call()
+    var disponible = await tokenContratos[idMoneda].balanceOf(this.state.accountAddress).call()
+    if(disponible._hex){
+      disponible = disponible._hex
+    }
+    disponible = new BigNumber(disponible).shiftedBy(-decimals2)
+
     this.setState({
       wallet: accountAddress,
       elementSelect: elementSelect,
       tokenSelected: await tokenContratos[idMoneda].symbol().call(),
       tokenContratos: tokenContratos,
-      fees: fees
+      fees: fees,
+      disponible: disponible.toNumber()
     });
 
   }
@@ -273,7 +286,7 @@ export default class CiroTrx extends Component {
     }
 
     aproved = parseInt(aproved._hex)
-    console.log(aproved)
+
     if (amount > aproved) {
       await contract_token.approve(this.state.contrato.ciro_trx.address, "115792089237316195423570985008687907853269984665640564039457584007913129639935").send()
     }
@@ -370,7 +383,7 @@ export default class CiroTrx extends Component {
                           <div className="from-box">
                             <div className="row">
                               <div className="col-2">
-                                <img className="" style={{margin: "7px 20px", width:"35px", height:"35px"}}  src={"assets/images/"+this.state.tokenSelected+"-logo.png"} atl="usdt" />
+                                <img className="" style={{margin: "7px 20px", width:"35px", height:"35px"}}  src={"assets/images/"+this.state.tokenSelected+"-logo.png"} alt={this.state.tokenSelected+"-logo"} />
                               </div>
                               <div className="col-10">
                                 <select name="select" id="token" onChange={()=>{this.opciones()}} style={{ padding: "6px 20px", borderRadius: "30px", width: "100%", height: "54px", marginBottom: "20px", backgroundColor: "transparent", color: "#8e8e8e", border: "1px solid #353D51" }}>
@@ -385,7 +398,7 @@ export default class CiroTrx extends Component {
                         <div className="col-lg-12 col-sm-12">
                           <p className="text-white">Amount</p>
                           <div className="from-box">
-                            <input type="number" id="amount" onChange={()=>{this.opciones()}} placeholder="0" />
+                            <input type="number" id="amount" onChange={()=>{this.opciones()}} placeholder="0" min={0} />
                           </div>
                           <p className="" style={{ fontSize: "0.9rem", color: "#808080" }}>Available: {this.state.disponible} {this.state.tokenSelected}</p>
                         </div>

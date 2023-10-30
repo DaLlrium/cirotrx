@@ -15,11 +15,7 @@ const openTronLink = () => {
 };
 export default class TronLinkGuide extends Component {
 
-    constructor(props) {
-      super(props);
-  
 
-    }
 
 
 
@@ -32,7 +28,7 @@ export default class TronLinkGuide extends Component {
         if(!installed) {
             elemento = (
                 
-                <div className='row' onClick={ openTronLink }>
+                <div className='row' style={{height:"700px", padding: "80px"}} onClick={ openTronLink }>
                     <div className='col-sm-8'>
                         <h1>Install TronLink</h1>
                         <p>
@@ -47,7 +43,7 @@ export default class TronLinkGuide extends Component {
 
             elemento = (
             <a href={"/"}>
-                <div className='row' >
+                <div className='row' style={{height:"700px", padding: "80px"}} >
     
                     <div className='col-sm-8'>
                         <h1>Unlock wallet</h1>
