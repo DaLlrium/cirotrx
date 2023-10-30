@@ -31,6 +31,8 @@ export default class CiroTrx extends Component {
 
     this.compra = this.compra.bind(this);
     this.estado = this.estado.bind(this);
+    this.opciones = this.opciones.bind(this);
+
 
   }
 
@@ -142,10 +144,11 @@ export default class CiroTrx extends Component {
 
     if (balance <= 0) {
       window.alert("Need some TRX to pay bandwidth");
-      return;
     }
 
     var tokenList = await this.state.contrato.ciro_trx.tokenList().call();
+
+    var idMoneda = document.getElementById("token").value;
 
     var elementSelect = [];
 
@@ -195,6 +198,22 @@ export default class CiroTrx extends Component {
 
     }
 
+    this.setState({
+      wallet: accountAddress,
+      elementSelect: elementSelect,
+      tokenSelected: await tokenContratos[idMoneda].symbol().call(),
+      tokenContratos: tokenContratos,
+      fees: fees
+    });
+
+  }
+
+  async opciones() {
+
+    var tokenContratos = this.state.tokenContratos;
+
+    var fees = this.state.fees;
+
     var idMoneda = document.getElementById("token").value;
 
     var disponible = await tokenContratos[idMoneda].balanceOf(this.state.accountAddress).call()
@@ -223,8 +242,6 @@ export default class CiroTrx extends Component {
     }
 
     this.setState({
-      wallet: accountAddress,
-      elementSelect: elementSelect,
       tokenSelected: await tokenContratos[idMoneda].symbol().call(),
       disponible: disponible.toString(10),
       recivedAmount: amount.toString(10),
@@ -353,10 +370,10 @@ export default class CiroTrx extends Component {
                           <div className="from-box">
                             <div className="row">
                               <div className="col-2">
-                                <img className="" style={{margin: "7px 20px", width:"35px", height:"35px"}}  src="assets/images/usdtlogo.png" atl="usdt" />
+                                <img className="" style={{margin: "7px 20px", width:"35px", height:"35px"}}  src={"assets/images/"+this.state.tokenSelected+"-logo.png"} atl="usdt" />
                               </div>
                               <div className="col-10">
-                                <select name="select" id="token" style={{ padding: "6px 20px", borderRadius: "30px", width: "100%", height: "54px", marginBottom: "20px", backgroundColor: "transparent", color: "#8e8e8e", border: "1px solid #353D51" }}>
+                                <select name="select" id="token" onChange={()=>{this.opciones()}} style={{ padding: "6px 20px", borderRadius: "30px", width: "100%", height: "54px", marginBottom: "20px", backgroundColor: "transparent", color: "#8e8e8e", border: "1px solid #353D51" }}>
                                   {this.state.elementSelect}
                                 </select>
                               </div> 
@@ -368,21 +385,21 @@ export default class CiroTrx extends Component {
                         <div className="col-lg-12 col-sm-12">
                           <p className="text-white">Amount</p>
                           <div className="from-box">
-                            <input type="number" id="amount" placeholder="0" />
+                            <input type="number" id="amount" onChange={()=>{this.opciones()}} placeholder="0" />
                           </div>
                           <p className="" style={{ fontSize: "0.9rem", color: "#808080" }}>Available: {this.state.disponible} {this.state.tokenSelected}</p>
                         </div>
                         <div className="col-lg-12 col-sm-12 btn-group" role="group" >
-                          <button type="button" className="btn btn-success" onClick={()=>{ document.getElementById("amount").value = ((this.state.disponible)*0.25).toPrecision(6); this.estado()}} style={{ marginRight: "7px", borderRadius: "10px", backgroundColor: "#1DD1A1" }}>25%</button>
-                          <button type="button" className="btn btn-success" onClick={()=>{ document.getElementById("amount").value = ((this.state.disponible)*0.50).toPrecision(6); this.estado()}} style={{ marginRight: "7px", borderRadius: "10px", backgroundColor: "#1DD1A1" }}>50%</button>
-                          <button type="button" className="btn btn-success" onClick={()=>{ document.getElementById("amount").value = ((this.state.disponible)*0.75).toPrecision(6); this.estado()}} style={{ marginRight: "7px", borderRadius: "10px", backgroundColor: "#1DD1A1" }}>75%</button>
-                          <button type="button" className="btn btn-success" onClick={()=>{ document.getElementById("amount").value = ((this.state.disponible)*1).toPrecision(6); this.estado()}} style={{ borderRadius: "10px", backgroundColor: "#1DD1A1" }}>100%</button>
+                          <button type="button" className="btn btn-success" onClick={()=>{ document.getElementById("amount").value = ((this.state.disponible)*0.25).toPrecision(6); this.opciones()}} style={{ marginRight: "7px", borderRadius: "10px", backgroundColor: "#1DD1A1" }}>25%</button>
+                          <button type="button" className="btn btn-success" onClick={()=>{ document.getElementById("amount").value = ((this.state.disponible)*0.50).toPrecision(6); this.opciones()}} style={{ marginRight: "7px", borderRadius: "10px", backgroundColor: "#1DD1A1" }}>50%</button>
+                          <button type="button" className="btn btn-success" onClick={()=>{ document.getElementById("amount").value = ((this.state.disponible)*0.75).toPrecision(6); this.opciones()}} style={{ marginRight: "7px", borderRadius: "10px", backgroundColor: "#1DD1A1" }}>75%</button>
+                          <button type="button" className="btn btn-success" onClick={()=>{ document.getElementById("amount").value = ((this.state.disponible)*1).toPrecision(6); this.opciones()}} style={{ borderRadius: "10px", backgroundColor: "#1DD1A1" }}>100%</button>
 
                         </div>
                       </div>
                       <div className="from-box">
                         <p className="text-white text-center">Recived amount: {this.state.recivedAmount} {this.state.tokenSelected}</p>
-                        <button type="button" style={{ width: "100%" }} onClick={() => this.compra()}>Send</button>
+                        <button type="button" style={{ width: "100%" }} onClick={async() => {await this.opciones();this.compra()}}>Send</button>
                       </div>
                     </form>
                     <div id="status"></div>
