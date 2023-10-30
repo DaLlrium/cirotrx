@@ -271,8 +271,8 @@ export default class CiroTrx extends Component {
     var amount = document.getElementById("amount").value;
     var wallet = document.getElementById("wallet").value;
 
-    const tokenList = await this.state.contrato.ciro_trx.tokenList().call();
-    const contract_token = await window.tronWeb.contract().at(tokenList[0][idMoneda]);
+    var tokenContratos = this.state.tokenContratos;
+    const contract_token = tokenContratos[idMoneda];
 
     var balance = parseInt((await contract_token.balanceOf(this.state.accountAddress).call())._hex)
     var aproved = await contract_token.allowance(this.state.accountAddress, this.state.contrato.ciro_trx.address).call()
