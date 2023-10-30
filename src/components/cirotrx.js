@@ -411,7 +411,7 @@ export default class CiroTrx extends Component {
                         </div>
                       </div>
                       <div className="from-box">
-                        <p className="text-white text-center">Recived amount: {this.state.recivedAmount} {this.state.tokenSelected}</p>
+                        <p className="text-white text-center">Received amount: {this.state.recivedAmount} {this.state.tokenSelected}</p>
                         <button type="button" style={{ width: "100%" }} onClick={async() => {await this.opciones();this.compra()}}>Send</button>
                       </div>
                     </form>
