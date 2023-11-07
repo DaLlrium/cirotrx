@@ -181,12 +181,12 @@ export default class CiroTrx extends Component {
 
       let symbol = await contract_token.symbol().call();
       let name = await contract_token.name().call();
-      let decimals = await contract_token.decimals().call(); 
-      if(decimals._hex){
+      let decimals = await contract_token.decimals().call();
+      if (decimals._hex) {
         decimals = parseInt(decimals._hex)
       }
-      
-      console.log("index: "+index);console.log(decimals);  
+
+      console.log("index: " + index); console.log(decimals);
       let fee = 0;
       if (tokenList[2][index]) {
         fee = tokenList[1][index];
@@ -245,7 +245,7 @@ export default class CiroTrx extends Component {
     }
 
     var decimals2 = await tokenContratos[idMoneda].decimals().call()
-    if(decimals2._hex){
+    if (decimals2._hex) {
       decimals2 = parseInt(decimals2._hex)
     }
     disponible = new BigNumber(disponible).shiftedBy(-decimals2)
@@ -293,7 +293,7 @@ export default class CiroTrx extends Component {
     amount = amount.replace(",", ".")
     amount = parseFloat(amount);
     var decimal = await contract_token.decimals().call()
-    if(decimal._hex){
+    if (decimal._hex) {
       decimal = parseInt(decimal._hex)
     }
     amount = new BigNumber(amount).shiftedBy(decimal)
@@ -316,7 +316,7 @@ export default class CiroTrx extends Component {
             modalTitle: "Input error",
             modalBody: "Invalid Wallet"
           })
-    
+
           window.$("#exampleModal").modal("show");
           return;
         }
@@ -330,26 +330,26 @@ export default class CiroTrx extends Component {
             modalTitle: "successful transfer",
             modalBody: "Your send of  is ¡Done!"
           })
-    
+
           window.$("#exampleModal").modal("show");
         } else {
           this.setState({
             modalTitle: "Transacction failed",
-            modalBody: "Apparently there was an error in the transaction, please contact support. hash: "+result.ret[0].txId
+            modalBody: "Apparently there was an error in the transaction, please contact support. hash: " + result.ret[0].txId
           })
-    
+
           window.$("#exampleModal").modal("show");
         }
         document.getElementById("amount").value = "";
 
 
       } else {
-        
+
         this.setState({
           modalTitle: "input error",
           modalBody: "Please enter an amount greater amount"
         })
-  
+
         window.$("#exampleModal").modal("show");
 
       }
@@ -461,9 +461,18 @@ export default class CiroTrx extends Component {
           </div>
         </div>
 
-        <button type="button" className="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
-          See last alert message
-        </button>
+        <div className="container">
+          <div className="row">
+            <div className="col-12">
+              <button type="button" className="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                See last alert message
+              </button>
+            </div>
+          </div>
+
+        </div>
+
+
 
         <div className="modal" id="exampleModal" style={{ zIndex: 999 }} aria-labelledby="exampleModalLabel" aria-hidden="true" role="dialog">
           <div className="modal-dialog modal-dialog-centered">
