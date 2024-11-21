@@ -141,6 +141,56 @@
     </div>
 </div>
 <!-- ===============//banner section end here \\================= -->
+<div class="contact-form-area style-two pt-100 pb-100">
+    <div class="container">
+        <div class="row">
+            <div class="dreamit-section-title text-center upper1 pb-70">
+                <h1 class="section-title">Earn TRX Rewards by Lending Your Energy</h1>
+                <p>Maximize your unused energy! Delegate your energy to CiroTRX for 30 days and receive instant TRX rewards directly to your wallet.</p>
+            </div>
+        </div>
+        <div class="row justify-content-center">
+            <div class="col-lg-6 col-md-8 col-sm-12">
+                <div class="contact-form-box wow fadeInUp text-center" data-wow-delay=".4s">
+                    <div class="contact-form-title">
+                        <h3 class="pb-4">Delegate Energy & Earn</h3>
+                        <div class="d-flex justify-content-between align-items-center mb-5">
+                            <!-- Adjusted spacing with "mb-5" class -->
+                            <div class="energy-info">
+                                <h5>Energy Needed: <span id="energy-needed">000000</span></h5>
+                            </div>
+                            <div class="energy-info">
+                                <h5>Energy Available: <span id="energy-available">000000</span></h5>
+                            </div>
+                        </div>
+                    </div>
+                    <form action="https://formspree.io/f/myyleorq" method="POST" id="dreamit-form">
+                        <div class="row">
+                            <!-- Energy to Delegate -->
+                            <div class="col-lg-12 col-sm-12 mb-4">
+                                <!-- Added "mb-4" for extra space -->
+                                <div class="from-box">
+                                    <input type="number" id="energy" name="energy" placeholder="Energy to Delegate" required>
+                                </div>
+                            </div>
+                             <!-- TRX Rewards -->
+							 <div class="col-lg-12 col-sm-12 mb-4">
+                                <!-- Added "mb-4" for extra space -->
+                                <h5 id="trx-reward">You will receive: 00 TRX</h5>
+                            </div>
+                        </div>
+                        <div class="from-box">
+                            <button type="submit" class="btn btn-primary w-100">Delegate Now!</button>
+                        </div>
+                    </form>
+                    <div id="status"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ===============//banner section end here \\================= -->
 
 <!--==================================================-->
 <!-- Start Cryptobit Footer Middle Area -->
